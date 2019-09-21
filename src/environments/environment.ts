@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  clientId:'354798651970-f22mhgtg0ef4at9so0gbepd5sct8ssbj.apps.googleusercontent.com',
+  API_KEY :'AIzaSyB8UnRtjHNDw8d46OwTa9fXRIqxAn0RLpk',
+  SCOPES : 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid'
 };
 
 /*

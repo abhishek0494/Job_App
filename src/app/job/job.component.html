@@ -1,0 +1,183 @@
+<ng-sidebar-container  style="position: absolute;height: 100vh;">
+
+  <!-- A sidebar -->
+  <ng-sidebar sidebarClass="sidebar1" [(showBackdrop)]="showBackdrop" [(opened)]="_opened" [(position)]='position' [(mode)]='mode'>
+    <div style="display:flex;margin-top:30px" class="justify-content-center">
+        <img mat-card-avatar [src]="imageUrl" alt="User Avatar">
+      
+    </div>
+    <div style="display:flex;margin-top:30px;" class="justify-content-center">
+        <button mat-raised-button style="background-color:#fea38d;border-radius: 30px" (click)="signOut()">Sign Out</button>
+
+    </div>
+    <div style="margin-left:30px;margin-top:30px">
+      <mat-form-field class="example-chip-list">
+        <mat-chip-list #chipList>
+          <mat-chip
+            *ngFor="let skill of skillArray"
+            [selectable]="selectable"
+            [removable]="removable"
+            (removed)="remove(skill)">
+            {{skill}}
+            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+          </mat-chip>
+          <input
+            placeholder="Select Skills..."
+            #skillInput
+            [formControl]="skillControl"
+            [matAutocomplete]="auto"
+            [matChipInputFor]="chipList"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+        </mat-chip-list>
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedAuto($event)">
+          <mat-option *ngFor="let option of skillsList" [value]="option">
+            {{option}}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+        <!-- <mat-form-field>
+            <input style="max-width: 230px;" placeholder="Skills" aria-label="skills" [formControl]="skillControl"
+                matInput [matAutocomplete]="autoSkill" >
+            <button mat-button *ngIf="selectedField?.skill?.length>0" matSuffix mat-icon-button aria-label="Clear" (click)="clearField('skill')">
+                <mat-icon>close</mat-icon>
+            </button>
+            <mat-autocomplete autoActiveFirstOption #autoSkill="matAutocomplete">
+                <mat-option style="background-color:#525252;color:#999999" *ngFor="let option of skillsList" [value]="option" (click)='selectOption("skill",option)'>
+                    {{option}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field> -->
+        <mat-form-field>
+            <input style="max-width: 230px;" type="text" placeholder="Experience" aria-label="exp" [formControl]="expControl" [(ngModel)]="exp"
+                matInput [matAutocomplete]="autoexp">
+            <button mat-button *ngIf="selectedField?.exp?.length>0" matSuffix mat-icon-button aria-label="Clear" (click)="clearField('exp')">
+                <mat-icon>close</mat-icon>
+            </button>
+            <mat-autocomplete autoActiveFirstOption #autoexp="matAutocomplete">
+                <mat-option style="background-color:#1e1e1e;color:#999999" *ngFor="let option of filteredexp" [value]="option" (click)='selectOption("exp",option)'>
+                    {{option}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field>
+            <input style="max-width: 230px;" type="text" placeholder="location" aria-label="location" [formControl]="locationControl"
+                matInput [matAutocomplete]="autolocation">
+            <button mat-button *ngIf="selectedField?.location?.length>0" matSuffix mat-icon-button aria-label="Clear" (click)="clearField('location')">
+                <mat-icon>close</mat-icon>
+            </button>
+            <mat-autocomplete autoActiveFirstOption #autolocation="matAutocomplete">
+                <mat-option style="background-color:#525252;color:#999999" *ngFor="let option of filteredlocation" [value]="option" (click)='selectOption("location",option)'>
+                    {{option}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Sort</mat-label>
+          <mat-select [(value)]="selected" (selectionChange)="somethingChanged(selected)">
+            <mat-option>None</mat-option>
+            <mat-option value="expAsc">Experience Ascending</mat-option>
+            <mat-option value="expDesc">Experience Descending</mat-option>
+            <mat-option value="LocAsc">Location Ascending</mat-option>
+            <mat-option value="LocDesc">Location Descending</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-slide-toggle
+          class="example-margin"
+          [color]="color"
+          [checked]="checked"
+          (change)="setValue($event )">
+        Show Expiring Jobs
+      </mat-slide-toggle>
+    </div>
+  </ng-sidebar>
+
+  <!-- Page content -->
+  <div ng-sidebar-content>
+    <div class="container-fluid">
+      <div>
+        <div class="example-loading-shade" *ngIf="isLoadingResults || isRateLimitReached">
+          <mat-spinner *ngIf="isLoadingResults" color="accent"></mat-spinner>
+          <div class="example-rate-limit-reached" *ngIf="isRateLimitReached">
+            API rate limit has been reached. It will be reset in one minute.
+          </div>
+        </div>
+        <br />
+        <mat-toolbar style="background-color:#2b2b2b;color:#999999">
+          <b>Total Jobs Found: </b>{{resultsLength}}
+        </mat-toolbar>
+        <br/>
+        <mat-paginator class="mat-paginator-sticky" style="background-color:#2b2b2b;color:#999999" [length]="resultsLength" [pageSize]="20">
+        </mat-paginator>
+        <br />
+        <div class="row" style="height:70vh;overflow:auto">
+          <div class="col-md-12" *ngFor="let data of dataSource;let i=index;">
+            <mat-card style="background-color: #2b2b2b;color: #999999">
+              <mat-card-header>
+                <mat-card-title>{{data.title}}</mat-card-title>
+                <mat-card-subtitle style="color:#bdbdbd">{{data.companyname}}
+                  <b class="float-right">{{data.created}}</b>
+                </mat-card-subtitle>
+                <div style="position:absolute;right:15px;top:15px">
+                  <mat-chip-list>
+                    <mat-chip style="background-color:#a3ade9">{{data.source}}</mat-chip>
+                  </mat-chip-list>
+                </div>
+              </mat-card-header>
+              <mat-card-content>
+                <div *ngIf="data.ExpiringIn<11" style="color:#fea38d" class="float-right">
+                  Expiring in {{data.ExpiringIn}} days.
+                </div>
+                <div class="row">
+                  <div class="col-md-6" *ngIf="data.experience.length">
+                    <mat-icon><i class="fas fa-briefcase"></i></mat-icon>
+                    &nbsp;{{data.experience}}
+                  </div>
+                  <div class="col-md-6" *ngIf="data.salary.length">
+                    <mat-icon><i class="fas fa-money-check-alt"></i></mat-icon>&nbsp;&nbsp;
+                    {{data.salary.length?data.salary:'Not Disclosed'}}
+                  </div>
+    
+                </div>
+                <div class="row">
+                  <div class="col-md-6" *ngIf="data.skills.length">
+                    <mat-icon><i class="fas fa-pen-nib"></i></mat-icon>
+                    &nbsp;{{data.skills}}
+                  </div>
+                  <div class="col-md-6" *ngIf="data.location.length">
+                    <mat-icon><i class="fas fa-map-marker-alt"></i></mat-icon>{{data.location}}
+                  </div>
+                </div>
+                <div class="row" *ngIf="data.jd.length">
+                  <div class="col-md-12">
+                      <p>{{data.jd.length>260?data.jd.substr(0,260)+'...':data.jd}}</p>
+                  </div>
+                </div>
+              </mat-card-content>
+              <mat-card-actions style="border-top:1px solid #bdbdbd;display: flex;">
+                <span>
+                  <mat-icon><i class="fas fa-clock"></i></mat-icon>
+                  Start Date <b *ngIf="data.startdate.length>0"> {{data.startdate}}</b>
+                  <b *ngIf="data.startdate.length==0">--:--</b>
+                </span>
+                <span style="flex:1 1 auto"></span>
+                <span>
+                  <mat-icon><i class="fas fa-stopwatch"></i></mat-icon>
+                  End Date <b *ngIf="data.enddate.length>0"> {{data.enddate}}</b>
+                  <b *ngIf="data.enddate.length==0">--:--</b>
+                </span>
+              </mat-card-actions>
+            </mat-card>
+            
+              <br />
+          </div>
+        </div>
+    
+      </div>
+    
+    </div>
+</div>
+</ng-sidebar-container>
+
+
+
