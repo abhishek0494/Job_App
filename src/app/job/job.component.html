@@ -50,7 +50,7 @@
         <mat-form-field>
             <input style="max-width: 230px;" type="text" placeholder="Experience" aria-label="exp" [formControl]="expControl" [(ngModel)]="exp"
                 matInput [matAutocomplete]="autoexp">
-            <button mat-button *ngIf="selectedField?.exp?.length>0" matSuffix mat-icon-button aria-label="Clear" (click)="clearField('exp')">
+            <button mat-button *ngIf="selectedField['exp']?.length>0" matSuffix mat-icon-button aria-label="Clear" (click)="clearField('exp')">
                 <mat-icon>close</mat-icon>
             </button>
             <mat-autocomplete autoActiveFirstOption #autoexp="matAutocomplete">
@@ -62,7 +62,7 @@
         <mat-form-field>
             <input style="max-width: 230px;" type="text" placeholder="location" aria-label="location" [formControl]="locationControl"
                 matInput [matAutocomplete]="autolocation">
-            <button mat-button *ngIf="selectedField?.location?.length>0" matSuffix mat-icon-button aria-label="Clear" (click)="clearField('location')">
+            <button mat-button *ngIf="selectedField['location']?.length>0" matSuffix mat-icon-button aria-label="Clear" (click)="clearField('location')">
                 <mat-icon>close</mat-icon>
             </button>
             <mat-autocomplete autoActiveFirstOption #autolocation="matAutocomplete">
@@ -84,9 +84,8 @@
         
         <mat-slide-toggle
           class="example-margin"
-          [color]="color"
           [checked]="checked"
-          (change)="setValue($event )">
+          (change)="setValue()">
         Show Expiring Jobs
       </mat-slide-toggle>
     </div>
